@@ -33,20 +33,69 @@ const article2 = new Article({
 });
 const defaultArticle = [article1, article2];
 
-app.get("/articles", (req, res) => {
-  Article.find({}, (err, foundArticle) => {
-      if(!err){
-        res.send(foundArticle);
-      }else{
-          res.send(err);
-      } 
-  });
+
+app.route("/articles")
+    .get( (req, res) => {
+        Article.find({}, (err, foundArticle) => {
+            if(!err){
+            res.send(foundArticle);
+            }else{
+                res.send(err);
+            } 
+        });
+    })
+    .post((req,res)=>{
+        
+        const article= new Article({
+            title:req.body.title,
+            content:req.body.content
+        });
+        article.save((err)=>{
+            if(!err){
+                res.send("Sucessfully added the new article!");
+            }else{
+                res.send(err);
+            }
+        });
+
+        
+    })
+    .delete((req,res)=>{
+    Article.deleteMany((err)=>{
+        if(!err){
+            res.send("Sucessfully deleted all items");
+        }else{
+            res.send(err);
+        }
+    })
 });
 
-app.post("/articles",(req,res)=>{
-    console.log(req.body.title);
-    console.log(req.body.content);
-});
+app.route("/articles/:requestedArticle")
+    .get((req,res)=>{
+        Article.findOne({title: req.params.requestedArticle},(err,foundArticle)=>{
+            if(foundArticle){
+                res.send(foundArticle);
+            }
+            else{
+                res.send("No articles matching this title");
+            }
+        });
+    })
+    .put((req,res)=>{
+        Article.updateMany(
+            {title: req.params.requestedArticle},
+            {title: req.body.title, content: req.body.content},
+            {overwrite:true},
+            (err)=>{
+                if(err){
+                    res.send(err);
+                }else{
+                    res.send("Sucessfully updated the article");
+                }
+            }
+        );
+    });
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, (req, res) => {
