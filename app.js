@@ -82,7 +82,7 @@ app.route("/articles/:requestedArticle")
         });
     })
     .put((req,res)=>{
-        Article.updateMany(
+        Article.updateOne(
             {title: req.params.requestedArticle},
             {title: req.body.title, content: req.body.content},
             {overwrite:true},
@@ -90,10 +90,29 @@ app.route("/articles/:requestedArticle")
                 if(err){
                     res.send(err);
                 }else{
-                    res.send("Sucessfully updated the article");
+                    res.send("Sucessfully replaced the article");
                 }
             }
         );
+    })
+    .patch((req,res)=>{
+        Article.updateOne({title:req.params.requestedArticle},
+            {$set:{title:req.body.title}},(err)=>{
+                if(!err){
+                    res.send("Sucessfully updated the article");
+                }else{
+                    res.send(err);
+                }
+            });
+    })
+    .delete((req,res)=>{
+        Article.deleteOne({title:req.params.requestedArticle},(err)=>{
+            if(err){
+                res.send(err);
+            }else{
+                res.send("Article deleted Sucessfully");
+            }
+        });
     });
 
 
